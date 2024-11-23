@@ -103,7 +103,7 @@ echo 'export PATH=$PATH:/usr/local/go/bin' > /etc/profile.d/golang.sh
 source /etc/profile.d/golang.sh
 
 # 编译 Sing-Box
-if ! go install -v -tags with_quic,with_grpc,with_dhcp,with_wireguard,with_ech,with_utls,with_reality_server,with_clash_api,with_gvisor,with_v2ray_api,with_lwip,with_acme github.com/xiaoxin08120000/sing-box/tree/dev-next/cmd/sing-box@latest; then
+if ! go install -v -tags with_quic,with_grpc,with_dhcp,with_wireguard,with_ech,with_utls,with_reality_server,with_clash_api,with_gvisor,with_v2ray_api,with_lwip,with_acme github.com/xiaoxin08120000/sing-box/cmd/sing-box@latest; then
     echo -e "Sing-Box 编译失败！退出脚本"
     exit 1
 fi
