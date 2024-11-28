@@ -1,3 +1,89 @@
+#!/bin/bash
+
+# 配置开始
+GO_VERSION="1.21.0"   # 指定 Go 的版本
+ARCH=$(uname -m)      # 自动获取系统架构
+INSTALL_DIR="/usr/local/go"  # Go 的安装目录
+SINGBOX_REPO="github.com/xiaoxin08120000/sing-box/cmd/sing-box"  # Sing-Box 的仓库地址
+TIMEZONE="Asia/Shanghai"     # 系统时区
+# 配置结束
+
+# 打印当前配置
+echo "-------------------------------------"
+echo "Go 版本: $GO_VERSION"
+echo "系统架构: $ARCH"
+echo "安装目录: $INSTALL_DIR"
+echo "Sing-Box 仓库: $SINGBOX_REPO"
+echo "时区: $TIMEZONE"
+echo "-------------------------------------"
+sleep 2
+
+# 检查系统依赖是否已安装
+check_dependencies() {
+    echo "检查系统依赖..."
+    local deps=("curl" "git" "gcc" "build-essential" "libssl-dev" "libevent-dev" "zlib1g-dev")
+    for dep in "${deps[@]}"; do
+        if ! command -v "$dep" &>/dev/null; then
+            echo "缺少依赖：$dep，请手动安装后重试！"
+            exit 1
+        fi
+    done
+    echo "所有依赖已安装！"
+}
+
+# 设置系统时区
+set_timezone() {
+    echo "设置系统时区为 $TIMEZONE"
+    if timedatectl set-timezone "$TIMEZONE"; then
+        echo "时区设置成功！"
+    else
+        echo "时区设置失败，请手动设置！"
+    fi
+}
+
+# 下载并安装 Go
+install_go() {
+    echo "开始安装 Go $GO_VERSION..."
+    case "$ARCH" in
+        x86_64) ARCH_TYPE="amd64" ;;
+        aarch64) ARCH_TYPE="arm64" ;;
+        armv7l) ARCH_TYPE="armv7" ;;
+        armhf) ARCH_TYPE="armhf" ;;
+        *) 
+            echo "未知的系统架构：$ARCH，不支持安装！"
+            exit 1
+            ;;
+    esac
+
+    local GO_TAR="go${GO_VERSION}.linux-${ARCH_TYPE}.tar.gz"
+    wget -O "$GO_TAR" "https://go.dev/dl/$GO_TAR" || { echo "下载 Go 失败！"; exit 1; }
+    tar -C /usr/local -xzf "$GO_TAR" || { echo "解压 Go 失败！"; exit 1; }
+    echo 'export PATH=$PATH:/usr/local/go/bin' > /etc/profile.d/golang.sh
+    source /etc/profile.d/golang.sh
+    echo "Go 安装成功！版本：$(go version)"
+}
+
+# 编译并安装 Sing-Box
+install_singbox() {
+    echo "开始编译 Sing-Box..."
+    if ! go install -v -tags with_quic,with_grpc,with_dhcp,with_wireguard,with_ech,with_utls,with_reality_server,with_clash_api,with_gvisor,with_v2ray_api,with_lwip,with_acme "$SINGBOX_REPO@latest"; then
+        echo "Sing-Box 编译失败！"
+        exit 1
+    fi
+    echo "Sing-Box 编译成功！"
+}
+
+# 主函数
+main() {
+    check_dependencies
+    set_timezone
+    install_go
+    install_singbox
+    echo "所有步骤完成！Sing-Box 已成功安装！"
+}
+
+# 执行主函数
+main
 
 # 检查是否存在旧版本的 sing-box
 if [ -f "/usr/local/bin/sing-box" ]; then
