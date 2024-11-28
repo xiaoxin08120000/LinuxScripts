@@ -59,48 +59,6 @@ else
     echo -e "\n设置时区为Asia/Shanghai"
     timedatectl set-timezone Asia/Shanghai || { echo -e "\e[31m时区设置失败！退出脚本\e[0m"; exit 1; }
     echo -e "\e[32m时区设置成功\e[0m"
-fi
-
-echo -e "编译Sing-Box 最新版本"
-sleep 1
-echo -e "开始编译Sing-Box 最新版本"
-rm -rf /root/go/bin/*
-
-# 获取 Go 版本
-Go_Version=$(curl -s https://github.com/golang/go/tags | grep '/releases/tag/go' | head -n 1 | gawk -F/ '{print $6}' | gawk -F\" '{print $1}')
-if [[ -z "$Go_Version" ]]; then
-    echo "获取 Go 版本失败！退出脚本"
-    exit 1
-fi
-
-# 判断 CPU 架构
-case $(uname -m) in
-    aarch64)
-        arch="arm64"
-        ;;
-    x86_64)
-        arch="amd64"
-        ;;
-    armv7l)
-        arch="armv7"
-        ;;
-    armhf)
-        arch="armhf"
-        ;;
-    *)
-        echo "未知的 CPU 架构: $(uname -m)，退出脚本"
-        exit 1
-        ;;
-esac
-
-echo "系统架构是：$arch"
-wget -O ${Go_Version}.linux-$arch.tar.gz https://go.dev/dl/${Go_Version}.linux-$arch.tar.gz || { echo "下载 Go 版本失败！退出脚本"; exit 1; }
-tar -C /usr/local -xzf ${Go_Version}.linux-$arch.tar.gz || { echo "解压 Go 文件失败！退出脚本"; exit 1; }
-
-# 设置 Go 环境变量
-echo 'export PATH=$PATH:/usr/local/go/bin' > /etc/profile.d/golang.sh
-# 你可能需要手动执行以下命令使环境变量生效
-source /etc/profile.d/golang.sh
 
 echo -e "编译完成，开始安装"
 sleep 1
