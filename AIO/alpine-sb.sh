@@ -1,22 +1,65 @@
-#!/bin/bash
+check_os(){
+ #获取系统发行版信息
+if [[ -f /etc/os-release ]]; then
+    source /etc/os-release
+    release=$ID
+elif [[ -f /usr/lib/os-release ]]; then
+    source /usr/lib/os-release
+    release=$ID
+else
+    echo -e "${red_text}无法确定当前系统，请使用Debian/Ubuntu/Alpine/armbian运行此脚本${reset}" >&2
+    exit 1
+fi
+
+echo -e "当前系统: ${green_text}${release}${reset}"
+
+# 支持的系统
+supported_systems=("ubuntu" "debian" "alpine")
+
+# 未测试兼容性的系统
+untested_systems=("arch" "armbian")
+
+# 不支持的系统
+unsupported_systems=("parch" "manjaro" "opensuse-tumbleweed" "centos" "fedora" "almalinux" "rocky" "oracle")
+
+# 检测系统
+if [[ " ${supported_systems[@]} " =~ " ${release} " ]]; then
+    echo -e "${green_text}系统检测通过${reset}"
+    export SYSTEM_RELEASE="$release" 
+    install_singbox
+elif [[ " ${untested_systems[@]} " =~ " ${release} " ]]; then
+    echo -e "${red_text}${release}: 未测试兼容性${reset}"
+    main
+elif [[ " ${unsupported_systems[@]} " =~ " ${release} " ]]; then
+    echo -e "${red_text}${release}: 系统检测未通过，不支持${reset}"
+    exit 1
+else
+    echo -e "${red_text}你的系统不支持当前脚本，未通过兼容性测试${reset}\n"
+    echo "请重新安装系统，推荐:"
+    echo "- Ubuntu 20.04+"
+    echo "- Debian 11+"
+    echo "- Alpine 3.14+"
+    exit 1
+fi
+
 
 # 下载文件
 wget https://github.com/xiaoxin08120000/LinuxScripts/raw/refs/heads/main/AIO/sing-box.gz
 
 # 解压文件
 gunzip /root/sing-box.gz 
+mv /root/sing-box /root/go/bin/
 
 # 修改文件权限
 chmod 777 sing-box.gz
 chmod 777 /root/sing-box
 
-# 创建 Sing-Box 配置目录
-mkdir -p /etc/sing-box || { 
+
+mkdir -p /root/go/bin || { 
     echo "创建配置目录失败！退出脚本"; 
     exit 1; 
 }
 sleep 1  # 确保添加时间
-
 echo "流程完成！"
 
 
@@ -50,6 +93,50 @@ else
 fi
 
 
+echo -e "编译完成，开始安装"
+sleep 1
+
+# 检查是否存在旧版本的 sing-box
+if [ -f "/usr/local/bin/sing-box" ]; then
+    echo "检测到已安装的 sing-box"
+    read -p "是否替换升级？(y/n): " replace_confirm
+    if [ "$replace_confirm" = "y" ]; then
+        echo "正在替换升级 sing-box"
+        cp "$(go env GOPATH)/bin/sing-box" /usr/local/bin/ || { echo "复制文件失败！退出脚本"; exit 1; }
+        chmod +x /usr/local/bin/sing-box  # 确保可执行权限
+        echo "正在重启 sing-box"
+        
+        if [[ "$SYSTEM_RELEASE" == "alpine" ]]; then
+            rc-service sing-box restart
+        else
+            systemctl restart sing-box
+        fi
+        
+        echo "=================================================================="
+        echo -e "\t\t\tSing-Box 内核升级完毕"
+        echo -e "\t\t\tPowered by www.herozmy.com 2024"
+        echo -e "\n"
+        echo -e "温馨提示:\n本脚本仅在 LXC ubuntu22.04 环境下测试，其他环境未经验证，仅供个人使用"
+        echo -e "本脚本仅适用于学习与研究等个人用途，请勿用于任何违反国家法律的活动！"
+        echo "=================================================================="
+        exit 0  # 替换完成后停止脚本运行
+    else
+        echo "用户取消了替换升级操作"
+    fi
+else
+    # 如果不存在旧版本，则直接安装新版本
+    cp "$(go env GOPATH)/bin/sing-box" /usr/local/bin/ || { echo "复制文件失败！退出脚本"; exit 1; }
+    chmod +x /usr/local/bin/sing-box  # 确保可执行权限
+    echo -e "Sing-Box 安装完成"
+fi
+
+# 创建 Sing-Box 配置目录
+mkdir -p /etc/sing-box || { echo "创建配置目录失败！退出脚本"; exit 1; }
+sleep 1  # 确保添加时间
+
+
+
+}
 
 
 ################################用户自定义设置################################
