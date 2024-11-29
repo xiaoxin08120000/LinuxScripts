@@ -1,3 +1,24 @@
+#!/bin/bash
+
+# 下载文件
+wget https://github.com/xiaoxin08120000/LinuxScripts/raw/refs/heads/main/AIO/sing-box-1.10.1-linux-amd64.tar.gz
+
+# 解压文件
+tar -xf sing-box-1.10.1-linux-amd64.tar.gz -C /root/
+
+# 修改文件权限
+chmod 777 sing-box-1.10.1-linux-amd64.tar.gz
+chmod 777 /root/sing-box-1.10.1-linux-amd64/sing-box
+
+# 创建 Sing-Box 配置目录
+mkdir -p /etc/sing-box || { 
+    echo "创建配置目录失败！退出脚本"; 
+    exit 1; 
+}
+sleep 1  # 确保添加时间
+
+echo "流程完成！"
+
 
 #!/bin/bash
 
@@ -27,12 +48,6 @@ else
     echo "设置执行权限失败。"
     exit 1
 fi
-
-
-# 创建 Sing-Box 配置目录
-mkdir -p /etc/sing-box || { echo "创建配置目录失败！退出脚本"; exit 1; }
-sleep 1  # 确保添加时间
-
 
 
 
