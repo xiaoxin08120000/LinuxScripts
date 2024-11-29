@@ -56,7 +56,13 @@ install_singbox() {
         echo -e "\n设置时区为Asia/Shanghai"
         timedatectl set-timezone Asia/Shanghai || { echo -e "\e[31m时区设置失败！退出脚本\e[0m"; exit 1; }
         echo -e "\e[32m时区设置成功\e[0m"
-    fi
+        
+    # 创建 /bin/sing-box 目录并移动文件
+    echo -e "\n创建 /bin/sing-box 目录并移动文件..."
+    mkdir -p "$INSTALL_DIR" || { echo "创建安装目录失败！退出脚本"; exit 1; }
+    mv "$DOWNLOAD_DIR/sing-box-1.10.1-linux-amd64/sing-box" "$INSTALL_DIR/sing-box" || { echo "文件移动失败！退出脚本"; exit 1; }
+    chmod +x "$INSTALL_DIR/sing-box" || { echo "设置执行权限失败！退出脚本"; exit 1; }
+
 
     # 下载 Singbox 文件
     echo -e "\n正在下载 Singbox 文件..."
