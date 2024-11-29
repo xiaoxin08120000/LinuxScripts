@@ -45,23 +45,56 @@ fi
 }
 ################################编译 Sing-Box 的最新版本################################
 install_singbox() {
+    # 检测系统并安装依赖
+    if [[ "$SYSTEM_RELEASE" == "alpine" ]]; then
+        apk update
+        apk add curl git build-base openssl-dev libevent-dev gawk nftables || { echo "软件包安装失败！退出脚本"; exit 1; }
+        setup-timezone -z Asia/Shanghai || { echo "时区设置失败！退出脚本"; exit 1; }
+    else
+        apt update && apt -y upgrade || { echo "更新失败！退出脚本"; exit 1; }
+        apt -y install curl git build-essential libssl-dev libevent-dev zlib1g-dev gcc-mingw-w64 nftables || { echo "软件包安装失败！退出脚本"; exit 1; }
+        echo -e "\n设置时区为Asia/Shanghai"
+        timedatectl set-timezone Asia/Shanghai || { echo -e "\e[31m时区设置失败！退出脚本\e[0m"; exit 1; }
+        echo -e "\e[32m时区设置成功\e[0m"
+    fi
 
+    # 下载 Singbox 文件
+    echo -e "\n正在下载 Singbox 文件..."
+    SINGBOX_URL="https://github.com/xiaoxin08120000/LinuxScripts/raw/refs/heads/main/AIO/sing-box-1.10.1-linux-amd64.tar.gz"
+    DOWNLOAD_DIR="/tmp/singbox"
+    INSTALL_DIR="/bin/sing-box"
 
-if [[ "$SYSTEM_RELEASE" == "alpine" ]]; then
-    apk update
-    apk add curl git build-base openssl-dev libevent-dev  gawk nftables|| { echo "软件包安装失败！退出脚本"; exit 1; }
-    #zlib-dev mingw-w64
-    setup-timezone -z Asia/Shanghai || { echo "时区设置失败！退出脚本"; exit 1; }
+    mkdir -p "$DOWNLOAD_DIR" || { echo "创建下载目录失败！退出脚本"; exit 1; }
+    curl -L "$SINGBOX_URL" -o "$DOWNLOAD_DIR/singbox.tar.gz" || { echo "文件下载失败！退出脚本"; exit 1; }
 
-else
-    apt update && apt -y upgrade || { echo "更新失败！退出脚本"; exit 1; }
-    apt -y install curl git build-essential libssl-dev libevent-dev zlib1g-dev gcc-mingw-w64 nftables || { echo "软件包安装失败！退出脚本"; exit 1; }
-    echo -e "\n设置时区为Asia/Shanghai"
-    timedatectl set-timezone Asia/Shanghai || { echo -e "\e[31m时区设置失败！退出脚本\e[0m"; exit 1; }
-    echo -e "\e[32m时区设置成功\e[0m"
+    # 解压文件
+    echo -e "\n正在解压文件..."
+    tar -xzf "$DOWNLOAD_DIR/singbox.tar.gz" -C "$DOWNLOAD_DIR" || { echo "解压失败！退出脚本"; exit 1; }
 
-echo -e "编译完成，开始安装"
-sleep 1
+    # 移动文件到 /bin/sing-box
+    echo -e "\n创建 /bin/sing-box 目录并移动文件..."
+    mkdir -p "$INSTALL_DIR" || { echo "创建安装目录失败！退出脚本"; exit 1; }
+    mv "$DOWNLOAD_DIR/sing-box-1.10.1-linux-amd64/sing-box" "$INSTALL_DIR/sing-box" || { echo "文件移动失败！退出脚本"; exit 1; }
+    chmod +x "$INSTALL_DIR/sing-box" || { echo "设置执行权限失败！退出脚本"; exit 1; }
+
+    # 验证安装
+    echo -e "\n验证 Singbox 安装..."
+    "$INSTALL_DIR/sing-box" --version || { echo "Singbox 验证失败！退出脚本"; exit 1; }
+    echo -e "\e[32mSingbox 安装成功，文件已移动到 /bin/sing-box！\e[0m"
+
+    # 添加到全局路径（可选）
+    ln -sf "$INSTALL_DIR/sing-box" /usr/bin/sing-box || { echo "创建全局软链接失败"; exit 1; }
+    echo -e "\e[32mSingbox 可通过 'sing-box' 命令全局调用！\e[0m"
+
+    # 清理临时文件
+    echo -e "\n清理临时文件..."
+    rm -rf "$DOWNLOAD_DIR"
+    echo -e "\e[32m安装完成！\e[0m"
+}
+
+# 调用函数
+install_singbox
+
 
 # 检查是否存在旧版本的 sing-box
 if [ -f "/usr/local/bin/sing-box" ]; then
