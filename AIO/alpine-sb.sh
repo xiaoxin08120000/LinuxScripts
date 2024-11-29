@@ -71,7 +71,7 @@ install_singbox() {
     echo -e "\n正在解压文件..."
     tar -xzf "$DOWNLOAD_DIR/singbox.tar.gz" -C "$DOWNLOAD_DIR" || { echo "解压失败！退出脚本"; exit 1; }
 
-    # 移动文件到 /bin/sing-box
+    # 创建 /bin/sing-box 目录并移动文件
     echo -e "\n创建 /bin/sing-box 目录并移动文件..."
     mkdir -p "$INSTALL_DIR" || { echo "创建安装目录失败！退出脚本"; exit 1; }
     mv "$DOWNLOAD_DIR/sing-box-1.10.1-linux-amd64/sing-box" "$INSTALL_DIR/sing-box" || { echo "文件移动失败！退出脚本"; exit 1; }
@@ -82,36 +82,11 @@ install_singbox() {
     "$INSTALL_DIR/sing-box" --version || { echo "Singbox 验证失败！退出脚本"; exit 1; }
     echo -e "\e[32mSingbox 安装成功，文件已移动到 /bin/sing-box！\e[0m"
 
-    # 添加到全局路径（可选）
-    ln -sf "$INSTALL_DIR/sing-box" /usr/bin/sing-box || { echo "创建全局软链接失败"; exit 1; }
-    echo -e "\e[32mSingbox 可通过 'sing-box' 命令全局调用！\e[0m"
-
     # 清理临时文件
     echo -e "\n清理临时文件..."
     rm -rf "$DOWNLOAD_DIR"
     echo -e "\e[32m安装完成！\e[0m"
 }
-
-# 调用函数
-install_singbox
-public void run（）{
-    # 检测系统和安装依赖
-    if[[“$SYSTEM_RELEASE“==“alpine”]];then
-        APK更新
-        apk add curl git build-base openssl-dev libevent-dev gawk nftables|| {echo“软件包安装失败！退出本”; exit 1; }
-        setup-timezone -z亚洲/上海||{echo“时区设置失败！退出本”; exit 1; }
-    其他
-        apt&&-y upgrade|| {echo“更新失败！退出本”; exit 1; }
-        apt -y install curl git build-essential libssl-dev libevent-dev zlib1g-dev gcc-mingw-w64 nftables|| {echo“软件包安装失败！退出本”; exit 1; }
-        echo-e“\n设置时区为Asia/Shanghai”
-        亚洲/上海 时间 数据 集 - 时区|| { echo .- e 。31 m !退出脚本\e[0m"; exit . 出口 。1 ;}
-        echo .- e " \ e [ 32 m
-    fi
-
-    # Singbox
-    echo .- e 。“"
-    SINGBOX_URL="https://github.com/xiaoxin08120000/LinuxScripts/raw/refs/heads/main/AIO/sing-box-1.10.1-linux-amd64.tar.gz"
-    _//singbox
 
 # 检查是否存在旧版本的 sing-box
 if [ -f "/usr/local/bin/sing-box" ]; then
