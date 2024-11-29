@@ -132,7 +132,7 @@ fi
 mkdir -p /etc/sing-box || { echo "创建配置目录失败！退出脚本"; exit 1; }
 sleep 1  # 确保添加时间
 
-
+fi
 
 }
 
