@@ -1,10 +1,9 @@
 
-if
     # 如果不存在旧版本，则直接安装新版本
     cp "$(go env GOPATH)/root/sing-box-1.10.1-linux-amd64/sing-box" /usr/local/bin/ || { echo "复制文件失败！退出脚本"; exit 1; }
     chmod +x /usr/local/bin/sing-box  # 确保可执行权限
     echo -e "Sing-Box 安装完成"
-fi
+
 
 # 创建 Sing-Box 配置目录
 mkdir -p /etc/sing-box || { echo "创建配置目录失败！退出脚本"; exit 1; }
