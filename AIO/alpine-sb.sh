@@ -1,3 +1,113 @@
+check_os(){
+ #获取系统发行版信息
+if [[ -f /etc/os-release ]]; then
+    source /etc/os-release
+    release=$ID
+elif [[ -f /usr/lib/os-release ]]; then
+    source /usr/lib/os-release
+    release=$ID
+else
+    echo -e "${red_text}无法确定当前系统，请使用Debian/Ubuntu/Alpine/armbian运行此脚本${reset}" >&2
+    exit 1
+fi
+
+echo -e "当前系统: ${green_text}${release}${reset}"
+
+# 支持的系统
+supported_systems=("ubuntu" "debian" "alpine")
+
+# 未测试兼容性的系统
+untested_systems=("arch" "armbian")
+
+# 不支持的系统
+unsupported_systems=("parch" "manjaro" "opensuse-tumbleweed" "centos" "fedora" "almalinux" "rocky" "oracle")
+
+# 检测系统
+if [[ " ${supported_systems[@]} " =~ " ${release} " ]]; then
+    echo -e "${green_text}系统检测通过${reset}"
+    export SYSTEM_RELEASE="$release" 
+    install_singbox
+elif [[ " ${untested_systems[@]} " =~ " ${release} " ]]; then
+    echo -e "${red_text}${release}: 未测试兼容性${reset}"
+    main
+elif [[ " ${unsupported_systems[@]} " =~ " ${release} " ]]; then
+    echo -e "${red_text}${release}: 系统检测未通过，不支持${reset}"
+    exit 1
+else
+    echo -e "${red_text}你的系统不支持当前脚本，未通过兼容性测试${reset}\n"
+    echo "请重新安装系统，推荐:"
+    echo "- Ubuntu 20.04+"
+    echo "- Debian 11+"
+    echo "- Alpine 3.14+"
+    exit 1
+fi
+
+}
+################################编译 Sing-Box 的最新版本################################
+install_singbox() {
+
+
+if [[ "$SYSTEM_RELEASE" == "alpine" ]]; then
+    apk update
+    apk add curl git build-base openssl-dev libevent-dev  gawk nftables|| { echo "软件包安装失败！退出脚本"; exit 1; }
+    #zlib-dev mingw-w64
+    setup-timezone -z Asia/Shanghai || { echo "时区设置失败！退出脚本"; exit 1; }
+
+else
+    apt update && apt -y upgrade || { echo "更新失败！退出脚本"; exit 1; }
+    apt -y install curl git build-essential libssl-dev libevent-dev zlib1g-dev gcc-mingw-w64 nftables || { echo "软件包安装失败！退出脚本"; exit 1; }
+    echo -e "\n设置时区为Asia/Shanghai"
+    timedatectl set-timezone Asia/Shanghai || { echo -e "\e[31m时区设置失败！退出脚本\e[0m"; exit 1; }
+    echo -e "\e[32m时区设置成功\e[0m"
+fi
+
+echo -e "编译Sing-Box 最新版本"
+sleep 1
+echo -e "开始编译Sing-Box 最新版本"
+rm -rf /root/go/bin/*
+
+# 获取 Go 版本
+Go_Version=$(curl -s https://github.com/golang/go/tags | grep '/releases/tag/go' | head -n 1 | gawk -F/ '{print $6}' | gawk -F\" '{print $1}')
+if [[ -z "$Go_Version" ]]; then
+    echo "获取 Go 版本失败！退出脚本"
+    exit 1
+fi
+
+# 判断 CPU 架构
+case $(uname -m) in
+    aarch64)
+        arch="arm64"
+        ;;
+    x86_64)
+        arch="amd64"
+        ;;
+    armv7l)
+        arch="armv7"
+        ;;
+    armhf)
+        arch="armhf"
+        ;;
+    *)
+        echo "未知的 CPU 架构: $(uname -m)，退出脚本"
+        exit 1
+        ;;
+esac
+
+echo "系统架构是：$arch"
+wget -O ${Go_Version}.linux-$arch.tar.gz https://go.dev/dl/${Go_Version}.linux-$arch.tar.gz || { echo "下载 Go 版本失败！退出脚本"; exit 1; }
+tar -C /usr/local -xzf ${Go_Version}.linux-$arch.tar.gz || { echo "解压 Go 文件失败！退出脚本"; exit 1; }
+
+# 设置 Go 环境变量
+echo 'export PATH=$PATH:/usr/local/go/bin' > /etc/profile.d/golang.sh
+# 你可能需要手动执行以下命令使环境变量生效
+source /etc/profile.d/golang.sh
+
+fi
+
+echo -e "编译完成，开始安装"
+sleep 1
+
+
 mkdir -p /root/go/bin || { 
     echo "创建配置目录失败！退出脚本"; 
     exit 1; 
