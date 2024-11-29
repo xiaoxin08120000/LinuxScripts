@@ -19,7 +19,7 @@ Linux综合脚本，包含基础环境设置、更新及部分软件安装、卸
 
 ## 下载使用
 
-
+---
 apk add bash && bash -c "$(curl -fsSL https://raw.githubusercontent.com/xiaoxin08120000/LinuxScripts/refs/heads/main/AIO/alpine-sb.sh)"                                                        
-
+---
 
