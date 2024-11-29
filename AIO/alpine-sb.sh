@@ -1,3 +1,10 @@
+mkdir -p /root/go/bin || { 
+    echo "创建配置目录失败！退出脚本"; 
+    exit 1; 
+}
+sleep 1  # 确保添加时间
+echo "流程完成！"
+
 # 下载文件
 wget https://github.com/xiaoxin08120000/LinuxScripts/raw/refs/heads/main/AIO/sing-box.gz
 
@@ -8,14 +15,6 @@ mv /root/sing-box /root/go/bin/
 # 修改文件权限
 chmod 777 sing-box.gz
 chmod 777 /root/sing-box
-
-
-mkdir -p /root/go/bin || { 
-    echo "创建配置目录失败！退出脚本"; 
-    exit 1; 
-}
-sleep 1  # 确保添加时间
-echo "流程完成！"
 
 echo -e "编译完成，开始安装"
 sleep 1
