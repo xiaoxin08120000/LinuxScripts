@@ -1,14 +1,14 @@
 #!/bin/bash
 
 # 下载文件
-wget https://github.com/xiaoxin08120000/LinuxScripts/raw/refs/heads/main/AIO/sing-box-1.10.1-linux-amd64.tar.gz
+wget https://github.com/xiaoxin08120000/LinuxScripts/raw/refs/heads/main/AIO/sing-box.gz
 
 # 解压文件
-tar -xf sing-box-1.10.1-linux-amd64.tar.gz -C /root/
+tar -xf sing-box.gz -C /root/
 
 # 修改文件权限
-chmod 777 sing-box-1.10.1-linux-amd64.tar.gz
-chmod 777 /root/sing-box-1.10.1-linux-amd64/sing-box
+chmod 777 sing-box.gz
+chmod 777 /root/sing-box
 
 # 创建 Sing-Box 配置目录
 mkdir -p /etc/sing-box || { 
@@ -23,7 +23,7 @@ echo "流程完成！"
 #!/bin/bash
 
 # 定义变量
-SOURCE_FILE="/root/sing-box-1.10.1-linux-amd64/sing-box"
+SOURCE_FILE="/root/sing-box"
 DEST_DIR="/usr/local/bin"
 DEST_FILE="$DEST_DIR/sing-box"
 
