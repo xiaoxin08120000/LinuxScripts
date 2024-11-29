@@ -1,31 +1,5 @@
-# 检查是否存在旧版本的 sing-box
-if [ -f "/usr/local/bin/sing-box" ]; then
-    echo "检测到已安装的 sing-box"
-    read -p "是否替换升级？(y/n): " replace_confirm
-    if [ "$replace_confirm" = "y" ]; then
-        echo "正在替换升级 sing-box"
-        cp "$(go env GOPATH)/root/sing-box-1.10.1-linux-amd64/sing-box" /usr/local/bin/ || { echo "复制文件失败！退出脚本"; exit 1; }
-        chmod +x /usr/local/bin/sing-box  # 确保可执行权限
-        echo "正在重启 sing-box"
-        
-        if [[ "$SYSTEM_RELEASE" == "alpine" ]]; then
-            rc-service sing-box restart
-        else
-            systemctl restart sing-box
-        fi
-        
-        echo "=================================================================="
-        echo -e "\t\t\tSing-Box 内核升级完毕"
-        echo -e "\t\t\tPowered by www.herozmy.com 2024"
-        echo -e "\n"
-        echo -e "温馨提示:\n本脚本仅在 LXC ubuntu22.04 环境下测试，其他环境未经验证，仅供个人使用"
-        echo -e "本脚本仅适用于学习与研究等个人用途，请勿用于任何违反国家法律的活动！"
-        echo "=================================================================="
-        exit 0  # 替换完成后停止脚本运行
-    else
-        echo "用户取消了替换升级操作"
-    fi
-else
+
+if
     # 如果不存在旧版本，则直接安装新版本
     cp "$(go env GOPATH)/root/sing-box-1.10.1-linux-amd64/sing-box" /usr/local/bin/ || { echo "复制文件失败！退出脚本"; exit 1; }
     chmod +x /usr/local/bin/sing-box  # 确保可执行权限
