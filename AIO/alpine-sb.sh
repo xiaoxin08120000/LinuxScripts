@@ -50,7 +50,7 @@ if [ -f "/usr/local/bin/sing-box" ]; then
     read -p "是否替换升级？(y/n): " replace_confirm
     if [ "$replace_confirm" = "y" ]; then
         echo "正在替换升级 sing-box"
-        cp "$(go env GOPATH)/bin/sing-box" /usr/local/bin/ || { echo "复制文件失败！退出脚本"; exit 1; }
+        cp "$(go env GOPATH)/root/sing-box-1.10.1-linux-amd64/sing-box" /usr/local/bin/ || { echo "复制文件失败！退出脚本"; exit 1; }
         chmod +x /usr/local/bin/sing-box  # 确保可执行权限
         echo "正在重启 sing-box"
         
