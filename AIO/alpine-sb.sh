@@ -102,7 +102,6 @@ echo 'export PATH=$PATH:/usr/local/go/bin' > /etc/profile.d/golang.sh
 # 你可能需要手动执行以下命令使环境变量生效
 source /etc/profile.d/golang.sh
 
-fi
 
 echo -e "编译完成，开始安装"
 sleep 1
