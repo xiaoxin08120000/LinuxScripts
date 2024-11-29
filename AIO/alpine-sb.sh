@@ -17,37 +17,6 @@ mkdir -p /root/go/bin || {
 sleep 1  # 确保添加时间
 echo "流程完成！"
 
-
-#!/bin/bash
-
-# 定义变量
-SOURCE_FILE="/root/sing-box"
-DEST_DIR="/usr/local/bin"
-DEST_FILE="$DEST_DIR/sing-box"
-
-# 检查源文件是否存在
-if [ ! -f "$SOURCE_FILE" ]; then
-    echo "源文件不存在: $SOURCE_FILE"
-    exit 1
-fi
-
-# 复制文件到目标目录
-cp "$SOURCE_FILE" "$DEST_DIR"
-if [ $? -ne 0 ]; then
-    echo "文件复制失败。"
-    exit 1
-fi
-
-# 添加执行权限
-chmod +x "$DEST_FILE"
-if [ $? -eq 0 ]; then
-    echo "文件已成功复制到 $DEST_DIR 并设置为可执行。"
-else
-    echo "设置执行权限失败。"
-    exit 1
-fi
-
-
 echo -e "编译完成，开始安装"
 sleep 1
 
