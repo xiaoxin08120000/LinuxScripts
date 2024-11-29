@@ -43,6 +43,73 @@ else
 fi
 
 }
+################################编译 Sing-Box 的最新版本################################
+install_singbox() {
+
+
+if [[ "$SYSTEM_RELEASE" == "alpine" ]]; then
+    apk update
+    apk add curl git build-base openssl-dev libevent-dev  gawk nftables|| { echo "软件包安装失败！退出脚本"; exit 1; }
+    #zlib-dev mingw-w64
+    setup-timezone -z Asia/Shanghai || { echo "时区设置失败！退出脚本"; exit 1; }
+
+else
+    apt update && apt -y upgrade || { echo "更新失败！退出脚本"; exit 1; }
+    apt -y install curl git build-essential libssl-dev libevent-dev zlib1g-dev gcc-mingw-w64 nftables || { echo "软件包安装失败！退出脚本"; exit 1; }
+    echo -e "\n设置时区为Asia/Shanghai"
+    timedatectl set-timezone Asia/Shanghai || { echo -e "\e[31m时区设置失败！退出脚本\e[0m"; exit 1; }
+    echo -e "\e[32m时区设置成功\e[0m"
+fi
+
+echo -e "编译Sing-Box 最新版本"
+sleep 1
+echo -e "开始编译Sing-Box 最新版本"
+rm -rf /root/go/bin/*
+
+# 获取 Go 版本
+Go_Version=$(curl -s https://github.com/golang/go/tags | grep '/releases/tag/go' | head -n 1 | gawk -F/ '{print $6}' | gawk -F\" '{print $1}')
+if [[ -z "$Go_Version" ]]; then
+    echo "获取 Go 版本失败！退出脚本"
+    exit 1
+fi
+
+# 判断 CPU 架构
+case $(uname -m) in
+    aarch64)
+        arch="arm64"
+        ;;
+    x86_64)
+        arch="amd64"
+        ;;
+    armv7l)
+        arch="armv7"
+        ;;
+    armhf)
+        arch="armhf"
+        ;;
+    *)
+        echo "未知的 CPU 架构: $(uname -m)，退出脚本"
+        exit 1
+        ;;
+esac
+
+echo "系统架构是：$arch"
+wget -O ${Go_Version}.linux-$arch.tar.gz https://go.dev/dl/${Go_Version}.linux-$arch.tar.gz || { echo "下载 Go 版本失败！退出脚本"; exit 1; }
+tar -C /usr/local -xzf ${Go_Version}.linux-$arch.tar.gz || { echo "解压 Go 文件失败！退出脚本"; exit 1; }
+
+# 设置 Go 环境变量
+echo 'export PATH=$PATH:/usr/local/go/bin' > /etc/profile.d/golang.sh
+# 你可能需要手动执行以下命令使环境变量生效
+source /etc/profile.d/golang.sh
+
+# 编译 Sing-Box
+if ! go install -v -tags with_quic,with_grpc,with_dhcp,with_wireguard,with_ech,with_utls,with_reality_server,with_clash_api,with_gvisor,with_v2ray_api,with_lwip,with_acme github.com/sagernet/sing-box/cmd/sing-box@latest; then
+    echo -e "Sing-Box 编译失败！退出脚本"
+    exit 1
+fi
+
+echo -e "编译完成，开始安装"
+sleep 1
 
 # 检查是否存在旧版本的 sing-box
 if [ -f "/usr/local/bin/sing-box" ]; then
@@ -50,7 +117,7 @@ if [ -f "/usr/local/bin/sing-box" ]; then
     read -p "是否替换升级？(y/n): " replace_confirm
     if [ "$replace_confirm" = "y" ]; then
         echo "正在替换升级 sing-box"
-        cp "$(go env GOPATH)/root/sing-box-1.10.1-linux-amd64/sing-box" /usr/local/bin/ || { echo "复制文件失败！退出脚本"; exit 1; }
+        cp "$(go env GOPATH)/bin/sing-box" /usr/local/bin/ || { echo "复制文件失败！退出脚本"; exit 1; }
         chmod +x /usr/local/bin/sing-box  # 确保可执行权限
         echo "正在重启 sing-box"
         
@@ -73,7 +140,7 @@ if [ -f "/usr/local/bin/sing-box" ]; then
     fi
 else
     # 如果不存在旧版本，则直接安装新版本
-    cp "$(go env GOPATH)/root/sing-box-1.10.1-linux-amd64/sing-box" /usr/local/bin/ || { echo "复制文件失败！退出脚本"; exit 1; }
+    cp "$(go env GOPATH)/bin/sing-box" /usr/local/bin/ || { echo "复制文件失败！退出脚本"; exit 1; }
     chmod +x /usr/local/bin/sing-box  # 确保可执行权限
     echo -e "Sing-Box 安装完成"
 fi
@@ -82,7 +149,7 @@ fi
 mkdir -p /etc/sing-box || { echo "创建配置目录失败！退出脚本"; exit 1; }
 sleep 1  # 确保添加时间
 
-fi
+
 
 }
 
