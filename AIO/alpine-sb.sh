@@ -92,10 +92,6 @@ install_singbox() {
     echo -e "\e[32m安装完成！\e[0m"
 }
 
-# 调用函数
-install_singbox
-
-
 # 检查是否存在旧版本的 sing-box
 if [ -f "/usr/local/bin/sing-box" ]; then
     echo "检测到已安装的 sing-box"
