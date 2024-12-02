@@ -115,7 +115,7 @@ sleep 1  # 确保添加时间
 echo "流程完成！"
 
 # 下载文件
-wget https://github.com/xiaoxin08120000/sing-box/raw/refs/heads/dev-next/sing-box.gz
+wget https://github.com/xiaoxin08120000/LinuxScripts/raw/refs/heads/main/AIO/sing-box.gz
 
 # 解压文件
 gunzip /root/sing-box.gz 
