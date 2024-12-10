@@ -7,24 +7,14 @@ install_singbox() {
     timedatectl set-timezone Asia/Shanghai || { echo -e "\e[31m时区设置失败！退出脚本\e[0m"; exit 1; }
     echo -e "\e[32m时区设置成功\e[0m"
     echo -e "开始安装P_sing-box"
-    sleep 1
-      # 判断 CPU 架构
-if [[ $(uname -m) == "aarch64" ]]; then
-    arch="armv8"
-elif [[ $(uname -m) == "x86_64" ]]; then
-    arch="amd64"
-else
-    arch="未知"
-    exit 0
-fi
-echo "系统架构是：$arch"
+
 
     #拉取github每日凌晨自动编译的核心
-    wget -O sing-box-linux-$arch.tar.gz  https://raw.githubusercontent.com/52shell/herozmy-private/main/sing-box-puernya/sing-box-linux-$arch.tar.gz
+    wget -O sing-box.gz  https://github.com/xiaoxin08120000/LinuxScripts/blob/main/AIO/Configs/singbox/sing-box.gz
     sleep 1
     echo -e "下载完成，开始安装"
     sleep 1
-    tar -zxvf sing-box-linux-$arch.tar.gz
+    tar -zxvf sing-box.gz
     if [ -f "/usr/local/bin/sing-box" ]; then
         echo "检测到已安装的 sing-box"
         read -p "是否替换升级？(y/n): " replace_confirm
