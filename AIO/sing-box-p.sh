@@ -76,7 +76,7 @@ install_config() {
 
 ####下载srs规则文件到rule目录，防止程序拉取不到，导致启动失败
 git init
-git remote add origin https://github.com/52shell/sing-box-mosdns-fakeip.git
+git remote add origin https://github.com/gumingxin/sing-box-mosdns-fakeip.git
 git config core.sparseCheckout true
 echo "singbox_rule" >> .git/info/sparse-checkout
 git pull origin main
