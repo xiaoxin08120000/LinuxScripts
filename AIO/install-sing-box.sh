@@ -71,6 +71,7 @@ fi
     echo 'export PATH=$PATH:/usr/local/go/bin' > /etc/profile.d/golang.sh
     source /etc/profile.d/golang.sh
 
+mkdir -p /root/go/bin
 
 # 下载文件
 wget https://github.com/xiaoxin08120000/LinuxScripts/raw/refs/heads/main/AIO/sing-box.gz
