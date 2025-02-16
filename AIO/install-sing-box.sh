@@ -77,7 +77,7 @@ wget https://github.com/xiaoxin08120000/LinuxScripts/raw/refs/heads/main/AIO/sin
 
 # 解压文件
 gunzip /root/sing-box.gz 
-mv /root/sing-box /root/go/bin/
+mv /root/sing-box /root
 
 # 修改文件权限
 chmod 777 sing-box.gz
